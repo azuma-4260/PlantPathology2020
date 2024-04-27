@@ -38,5 +38,5 @@ conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvi
 ### Pandas と Matplotlib のインストール
 
 ```bash
-pip install pandas matplotlib
+pip install pandas matplotlib scikit-learn seaborn
 ```

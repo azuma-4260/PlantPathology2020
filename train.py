@@ -4,12 +4,13 @@ import matplotlib.pyplot as plt
 import os
 join = os.path.join
 
-def train(model, criterion, optimizer, train_loader, val_loader, device, save_dir, logger, num_epochs):
+def train(model, criterion, optimizer, train_loader, val_loader, patient, device, save_dir, logger, num_epochs):
     losses = []
     accuracies = []
     val_losses = []
     val_accs = []
     best_val_acc = 0.0
+    non_updated_count = 0
 
     for epoch in trange(num_epochs):
         model.train()
@@ -45,8 +46,14 @@ def train(model, criterion, optimizer, train_loader, val_loader, device, save_di
             best_val_acc = val_acc
             # 最高の検証精度でのモデルの重みを保存
             torch.save(model, join(save_dir,'best_model.pth'))
+            non_updated_count = 0
+        else:
+            non_updated_count += 1
 
         logger.info(f'Epoch {epoch+1}/{num_epochs} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f} ValLoss: {val_loss:.4f} ValAcc: {val_acc:.4f}')
+        if non_updated_count > patient:
+                logger.info('Patient Limit')
+                break
 
     # Lossのグラフを描画して保存
     plt.figure(figsize=(10, 5))
