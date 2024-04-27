@@ -49,4 +49,5 @@ Train:Val:Test = 16:4:5になるように分割した
 - 適合率: 0.6688
 - 再現率: 0.6606
 - F1値: 0.6474
-- 混同行列: 
+- 混同行列:
+<img src="confusion_matrix.png" width="700">
