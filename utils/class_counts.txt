@@ -1,0 +1,4 @@
+healthy: 516
+multiple_diseases: 91
+rust: 622
+scab: 592
