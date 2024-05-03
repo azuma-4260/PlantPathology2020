@@ -1,4 +1,4 @@
-python main.py\
+python transfer.py\
     --img_root data/images\
     --train_csv_file data/train.csv\
     --work_dir work_dir\
