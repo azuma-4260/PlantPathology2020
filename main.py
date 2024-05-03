@@ -37,7 +37,7 @@ def main(is_train, model, criterion, optimizer, model_input_size, img_root, trai
     model.to(device)
 
     if is_train:
-        if args.use_sampler:
+        if use_sampler:
             train_loader = DataLoader(train_dataset, batch_size=64, sampler=get_sampler(train_dataset), num_workers=16)
         else:
             train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True, num_workers=16)
