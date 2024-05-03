@@ -10,7 +10,8 @@ def setup_logger(save_dir, use_sampler, is_train):
     logger.addHandler(file_handler)
     if is_train:
         logger.info('Train Start')
-        logger.info(f'{"" if use_sampler else "Not"} Using Sampler\n')
+        if use_sampler is not None:
+            logger.info(f'{"" if use_sampler else "Not"} Using Sampler\n')
     else:
         logger.info('Test Start')
     return logger

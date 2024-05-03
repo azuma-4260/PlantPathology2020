@@ -20,6 +20,36 @@ def test(model, test_loader, device, logger, save_dir):
         all_labels.extend(labels.cpu().numpy())
         all_preds.extend(preds.cpu().numpy())
 
+    calc_score(all_labels, all_preds, save_dir, logger)
+
+def test_ensemble(models, ensembler, test_loader, device, logger, save_dir):
+    for model in models:
+        model.eval()
+    ensembler.eval()
+
+    all_labels = []
+    all_preds = []
+
+    for images, labels in tqdm(test_loader):
+        images = images.to(device)
+        labels = labels.to(device)
+
+        output1 = models[0](images)
+        output2 = models[1](images)
+        output3 = models[2](images)
+        outputs = torch.cat((output1, output2, output3), dim=1)
+        outputs.to(device)
+
+        ensemble_outputs = ensembler(outputs)
+        preds = torch.argmax(ensemble_outputs, dim=1)
+
+        all_labels.extend(labels.cpu().numpy())
+        all_preds.extend(preds.cpu().numpy())
+
+    calc_score(all_labels, all_preds, save_dir, logger)
+
+
+def calc_score(all_labels, all_preds, save_dir, logger):
     accuracy = accuracy_score(all_labels, all_preds)
     precision = precision_score(all_labels, all_preds, average='macro')
     recall = recall_score(all_labels, all_preds, average='macro')
