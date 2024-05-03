@@ -70,5 +70,12 @@ Train:Val:Test = 16:4:5になるように分割した
 | lrスケジュールあり | 0.9452  | 0.9568 | 0.8309 | 0.8558 |
 
 ### 混同行列
-- ResNet50
-<img src="confusion_matrix.png" width="700">
+### モデルとその性能グラフ
+
+| モデル                         | 画像                                      |
+|-------------------------------|------------------------------------------|
+| **ResNet50**                  | ![ResNet50](figure/resnet50.png)         |
+| **Vit-h**                     | ![Vit-h](figure/vit.png)                 |
+| **アンサンブル(lrスケジュールなし)** | ![アンサンブル](figure/ensemble.png)        |
+| **アンサンブル(lrスケジュールあり)** | ![アンサンブル (スケジュールあり)](figure/ensemble_scheduled_lr.png) |
+
