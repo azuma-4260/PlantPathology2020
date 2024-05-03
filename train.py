@@ -1,5 +1,5 @@
 import torch
-from tqdm import trange
+from tqdm import trange, tqdm
 import matplotlib.pyplot as plt
 import os
 join = os.path.join
@@ -16,7 +16,7 @@ def train(model, criterion, optimizer, train_loader, val_loader, patient, device
         model.train()
         running_loss = 0.0
         running_acc = 0.0
-        for images, labels in train_loader:
+        for images, labels in tqdm(train_loader):
             images = images.to(device)
             labels = labels.to(device)
 
