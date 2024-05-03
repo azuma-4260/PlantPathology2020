@@ -70,7 +70,7 @@ def partition_imgs_by_label(img_path_list, labels):
                 if i != 3:
                     data.extend(v[:one_third*2])
                     data.extend(v[:one_third*2])
-                    data.extend(v[:one_third*2])
+
                 else:
                     data.extend(v[one_third*2:])
         else:
