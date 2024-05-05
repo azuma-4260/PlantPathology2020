@@ -73,6 +73,6 @@ Train:Val:Test = 16:4:5になるように分割した
 | **Vit-h**                     | ![Vit-h](figure/vit.png)                 |
 | **EfficentNetv2× 3 <br> (lrスケジュールなし)** | ![3 same model ensemble (lrスケジュールなし)](figure/ensemble.png)        |
 | **EfficentNetv2× 3 <br> (ReduceLROnPlateau)** | ![3 same model ensemble (ReduceLROnPlateau)](figure/ensemble_scheduled_lr.png) |
-| **EfficientNet<br>ConvNext<br>MobileNetv3 <br> (ReduceLROnPlateau)** | ![3 different model ensemble (ReduceLROnPlateau)](figure/ensemble_3models_reduse.png) |
+| **EfficientNet<br>ConvNext<br>MobileNetv3 <br> (ReduceLROnPlateau)** | ![3 different model ensemble (ReduceLROnPlateau)](figure/ensemble_3models_reduce.png) |
 | **EfficientNet<br>ConvNext<br>MobileNetv3 <br> (CosineAnnealingLR)** | ![3 different model ensemble (CosineAnnealingLR)](figure/ensemble_3models_cosine.png) |
 
