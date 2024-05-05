@@ -62,7 +62,8 @@ Train:Val:Test = 16:4:5になるように分割した
 | Vit-h             |    -    | 102      | 0.9151  | 0.8537 | 0.8229 | 0.8340 |
 | **アンサンブル**   |         |         |         |        |        |        |
 | EfficentNetv2 ×3 |    -    | 29       | 0.9095  | 0.9301 | 0.7496 | 0.7404 |
-| EfficentNetv2 ×3 | ReduceLROnPlateau | 34       | 0.9452  | 0.9568 | 0.8309 | 0.8558 |
+| EfficentNetv2 ×3 | ReduceLROnPlateau | 34       | **0.9452**  | **0.9568** | **0.8309** | **0.8558** |
+| EfficientNet<br>ConvNext<br>MobileNetv3 | ReduceLROnPlateau | 40       | 0.9315  | 0.8711 | 0.8117 | 0.8259 |
 | EfficientNet<br>ConvNext<br>MobileNetv3 | CosineAnnealingLR | 43       | 0.9260  | 0.8961 | 0.7761 | 0.7821 |
 
 ### 混同行列
@@ -70,7 +71,8 @@ Train:Val:Test = 16:4:5になるように分割した
 |:-----------------------------:|------------------------------------------|
 | **ResNet50**                  | ![ResNet50](figure/resnet50.png)         |
 | **Vit-h**                     | ![Vit-h](figure/vit.png)                 |
-| **EfficentNetv2× 3 <br> (lrスケジュールなし)** | ![アンサンブル](figure/ensemble.png)        |
-| **EfficentNetv2× 3 <br> (ReduceLROnPlateau)** | ![アンサンブル (スケジュールあり)](figure/ensemble_scheduled_lr.png) |
-| **EfficientNet<br>ConvNext<br>MobileNetv3 <br> (CosineAnnealingLR)** | ![アンサンブル (スケジュールあり)](figure/ensemble_3models.png) |
+| **EfficentNetv2× 3 <br> (lrスケジュールなし)** | ![3 same model ensemble (lrスケジュールなし)](figure/ensemble.png)        |
+| **EfficentNetv2× 3 <br> (ReduceLROnPlateau)** | ![3 same model ensemble (ReduceLROnPlateau)](figure/ensemble_scheduled_lr.png) |
+| **EfficientNet<br>ConvNext<br>MobileNetv3 <br> (ReduceLROnPlateau)** | ![3 different model ensemble (ReduceLROnPlateau)](figure/ensemble_3models_reduce.png) |
+| **EfficientNet<br>ConvNext<br>MobileNetv3 <br> (CosineAnnealingLR)** | ![3 different model ensemble (CosineAnnealingLR)](figure/ensemble_3models_cosine.png) |
 
