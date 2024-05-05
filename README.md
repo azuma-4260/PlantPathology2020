@@ -5,7 +5,6 @@
 
 ## データの準備
 データはコンペティションのページからダウンロードする。ダウンロードしたデータは以下のディレクトリ構造で配置する。
-
 ```markdown
 data/
   - images/
@@ -16,7 +15,6 @@ data/
 ```
 
 ## 必要なライブラリのインストール
-
 ### 仮想環境の作成
 ```bash
 conda create -n pp2020 python=3.10
@@ -24,19 +22,16 @@ conda activate pp2020
 ```
 
 ### CUDA Toolkit 11.8 のインストール
-
 ```bash
 conda install nvidia/label/cuda-11.8.0::cuda-toolkit
 ```
 
 ### PyTorch と関連ライブラリのインストール
-
 ```bash
 conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
 ```
 
 ### Pandas と Matplotlib のインストール
-
 ```bash
 pip install pandas matplotlib scikit-learn seaborn
 ```
@@ -60,22 +55,22 @@ Train:Val:Test = 16:4:5になるように分割した
 
 ## モデルの評価
 ### 正解率/適合率/再現率/F1値
-| モデル/指標        | 訓練時間(分) | 正解率  | 適合率  | 再現率  | F1値   |
-|-------------------|---------|---------|--------|--------|--------|
-| **転移学習**       |         |        |        |        |        |
-| ResNet50          | 7        | 0.8110  | 0.6688 | 0.6606 | 0.6474 |
-| Vit-h             | 102      | 0.9151  | 0.8537 | 0.8229 | 0.8340 |
-| **アンサンブル**   |         |         |        |        |        |
-| lrスケジュールなし | 29       | 0.9095  | 0.9301 | 0.7496 | 0.7404 |
-| lrスケジュールあり | 34       | 0.9452  | 0.9568 | 0.8309 | 0.8558 |
+| モデル/指標        |LRスケジューラ| 訓練時間(分) | 正解率  | 適合率  | 再現率  | F1値   |
+|:-----------------:|:--------:|:-------:|:-------:|:------:|:------:|:------:|
+| **転移学習**       |         |         |        |        |        |        |
+| ResNet50          |    -    | 7        | 0.8110  | 0.6688 | 0.6606 | 0.6474 |
+| Vit-h             |    -    | 102      | 0.9151  | 0.8537 | 0.8229 | 0.8340 |
+| **アンサンブル**   |         |         |         |        |        |        |
+| EfficentNetv2 ×3 |    -    | 29       | 0.9095  | 0.9301 | 0.7496 | 0.7404 |
+| EfficentNetv2 ×3 | ReduceLROnPlateau | 34       | 0.9452  | 0.9568 | 0.8309 | 0.8558 |
+| EfficientNet<br>ConvNext<br>MobileNetv3 | CosineAnnealingLR | 43       | 0.9260  | 0.8961 | 0.7761 | 0.7821 |
 
 ### 混同行列
-### モデルとその性能グラフ
-
 | モデル                         | 画像                                      |
-|-------------------------------|------------------------------------------|
+|:-----------------------------:|------------------------------------------|
 | **ResNet50**                  | ![ResNet50](figure/resnet50.png)         |
 | **Vit-h**                     | ![Vit-h](figure/vit.png)                 |
-| **アンサンブル(lrスケジュールなし)** | ![アンサンブル](figure/ensemble.png)        |
-| **アンサンブル(lrスケジュールあり)** | ![アンサンブル (スケジュールあり)](figure/ensemble_scheduled_lr.png) |
+| **EfficentNetv2× 3 <br> (lrスケジュールなし)** | ![アンサンブル](figure/ensemble.png)        |
+| **EfficentNetv2× 3 <br> (ReduceLROnPlateau)** | ![アンサンブル (スケジュールあり)](figure/ensemble_scheduled_lr.png) |
+| **EfficientNet<br>ConvNext<br>MobileNetv3 <br> (CosineAnnealingLR)** | ![アンサンブル (スケジュールあり)](figure/ensemble_3models.png) |
 
