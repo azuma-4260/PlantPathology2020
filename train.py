@@ -1,5 +1,6 @@
 import torch
-from tqdm import trange, tqdm
+import torch.optim.lr_scheduler as lr_scheduler
+from tqdm import trange
 import matplotlib.pyplot as plt
 import os
 join = os.path.join
@@ -55,7 +56,10 @@ def train(model, criterion, optimizer, train_loader, val_loader,
 
         logger.info(f'Epoch {epoch+1}/{num_epochs} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f} ValLoss: {val_loss:.4f} ValAcc: {val_acc:.4f}')
         if scheduler is not None:
-            scheduler.step(val_loss)
+            if isinstance(scheduler, lr_scheduler.ReduceLROnPlateau):
+                scheduler.step(val_loss) # ReduceLROnPlateau
+            else:
+                scheduler.step()
         if non_updated_count > patient:
                 logger.info('Patient Limit')
                 break
@@ -157,7 +161,11 @@ def train_ensemble(models, ensembler, criterion, optimizer, scheduler, train_loa
             torch.save(ensembler, join(save_dir,'ensembler_best_model.pth'))
 
         logger.info(f'Epoch {epoch+1}/{num_epochs} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f} ValLoss: {val_loss:.4f} ValAcc: {val_acc:.4f}')
-        scheduler.step(val_loss)
+        if scheduler is not None:
+            if isinstance(scheduler, lr_scheduler.ReduceLROnPlateau):
+                scheduler.step(val_loss) # ReduceLROnPlateau
+            else:
+                scheduler.step()
 
     # Lossのグラフを描画して保存
     plt.figure(figsize=(10, 5))

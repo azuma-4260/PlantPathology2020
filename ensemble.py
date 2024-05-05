@@ -6,14 +6,32 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 import torchvision.transforms as T
 from dataset.Dataset import get_ensemble_datasets
-from torchvision.models import efficientnet_v2_l, EfficientNet_V2_L_Weights
+from torchvision.models import efficientnet_v2_l, EfficientNet_V2_L_Weights, convnext_base, ConvNeXt_Base_Weights, mobilenet_v3_large, MobileNet_V3_Large_Weights
 from train import train, train_ensemble
 from test import test_ensemble
 import os
 from utils.logger import setup_logger
 from ensemble.Ensembler import Ensembler
 
-def main(img_root, csv, is_train, patient, save_dir, test_root, logger):
+def main(img_root, csv, is_train, num_epochs, patient, scheduler_name, use_different_models,
+         save_dir, test_root, logger):
+
+    # scheduler_nameからschedulerを決定するinner function
+    def get_scheduler():
+        if scheduler_name == 'reduce':
+            scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min')
+            logger.info(f'Scheduler: {scheduler.__class__.__name__}')
+        elif scheduler_name == 'cosine':
+            scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=num_epochs)
+            logger.info(f'Scheduler: {scheduler.__class__.__name__}')
+        else:
+            logger.info('*************************************************')
+            logger.info('Not Using Scheduler')
+            logger.info('*************************************************')
+            scheduler = None
+        return scheduler
+
+
     train_transform = T.Compose([
         T.Resize(256),
         T.RandomCrop(224),
@@ -34,12 +52,23 @@ def main(img_root, csv, is_train, patient, save_dir, test_root, logger):
     train_datasets, ensemble_datset, val_dataset, test_dataset = get_ensemble_datasets(img_root=img_root, train_csv=csv,
                                                                       train_transform=train_transform, val_transform=val_transform)
 
-    model1 = efficientnet_v2_l(EfficientNet_V2_L_Weights.DEFAULT)
-    model2 = efficientnet_v2_l(EfficientNet_V2_L_Weights.DEFAULT)
-    model3 = efficientnet_v2_l(EfficientNet_V2_L_Weights.DEFAULT)
+    if use_different_models:
+        logger.info('Using Different 3 models')
+        model1 = efficientnet_v2_l(EfficientNet_V2_L_Weights.DEFAULT)
+        model1.classifier[1] = nn.Linear(1280, 4)
+        model2 = convnext_base(ConvNeXt_Base_Weights.DEFAULT)
+        model2.classifier[2] = nn.Linear(1024, 4)
+        model3 = mobilenet_v3_large(MobileNet_V3_Large_Weights.DEFAULT)
+        model3.classifier[3] = nn.Linear(1280, 4)
+    else:
+        logger.info('Using Same 3 models')
+        model1 = efficientnet_v2_l(EfficientNet_V2_L_Weights.DEFAULT)
+        model1.classifier[1] = nn.Linear(1280, 4)
+        model2 = efficientnet_v2_l(EfficientNet_V2_L_Weights.DEFAULT)
+        model2.classifier[2] = nn.Linear(1280, 4)
+        model3 = efficientnet_v2_l(EfficientNet_V2_L_Weights.DEFAULT)
+        model3.classifier[3] = nn.Linear(1280, 4)
     models = [model1, model2, model3]
-    for model in models:
-        model.classifier[1] = nn.Linear(1280, 4)
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     if is_train:
@@ -51,11 +80,11 @@ def main(img_root, csv, is_train, patient, save_dir, test_root, logger):
         for i, model in enumerate(models):
             model.to(device)
             train_loader = DataLoader(train_datasets[i], batch_size=64, shuffle=True, num_workers=16)
-            optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=5e-4)
-            scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min')
-            logger.info(f'\nmodel{i} Train Start')
+            optimizer = optim.Adam(model.parameters(), lr=0.001)
+            scheduler = get_scheduler()
+            logger.info(f'\nmodel{i}: {model.__class__.__name__} Train Start')
             train(model, criterion, optimizer, train_loader, val_loader, patient,
-                  device, save_dir, logger, num_epochs=50, model_number=i, scheduler=scheduler)
+                  device, save_dir, logger, num_epochs, model_number=i, scheduler=scheduler)
 
         # train ensemble model
         logger.info('\nEnsemble Train Start')
@@ -63,9 +92,9 @@ def main(img_root, csv, is_train, patient, save_dir, test_root, logger):
         ensembler.to(device)
         train_loader = DataLoader(ensemble_datset, batch_size=64, shuffle=True, num_workers=16)
         optimizer = optim.Adam(ensembler.parameters(), lr=0.001, weight_decay=5e-4)
-        scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min')
+        scheduler = get_scheduler()
         train_ensemble(models, ensembler, criterion, optimizer, scheduler, train_loader, val_loader,
-                        device, save_dir, logger, num_epochs=50)
+                        device, save_dir, logger, num_epochs)
 
         # test
         logger.info('\nTest Start')
@@ -101,6 +130,9 @@ if __name__ == '__main__':
     parser.add_argument('--patient', type=int, required=False, default=20)
     parser.add_argument('--work_dir', type=str, required=False, default='./work_dir', help='Root Directory for saving results.')
     parser.add_argument('--test_root', type=str, required=False, help='Root Directory for test weight.')
+    parser.add_argument('--num_epochs', type=int, required=False, default=50)
+    parser.add_argument('--scheduler_name', type=str, required=False, default='reduce')
+    parser.add_argument('--use_different_models', type=bool, required=False, default=False, help='If True, use three diffrent model for ensemble')
     args = parser.parse_args()
 
     current_time = datetime.datetime.now()
@@ -112,4 +144,5 @@ if __name__ == '__main__':
 
     logger = setup_logger(save_dir, None, args.is_train)
 
-    main(args.img_root, args.csv, args.is_train, args.patient, save_dir, args.test_root, logger)
+    main(args.img_root, args.csv, args.is_train, args.num_epochs, args.patient, args.scheduler_name,
+         args.use_different_models, save_dir, args.test_root, logger)
